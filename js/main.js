@@ -1,5 +1,55 @@
 (() => {
 
+class Controlled {
+
+  constructor(holder) {
+    this.holder = holder;
+    this.holderHeight = this.holder.height();
+  }
+
+  createElement() {
+    this.element = $('<div/>', {
+        class: this.class,
+        id: this.id
+      });
+
+    this.position = {
+      x: this.initalX,
+      y: 0
+    }
+
+    $(this.holder).append(this.element);
+
+    this.radius = this.element.width() / 2;
+  }
+
+  die() {
+    this.element.remove();
+  }
+
+  set position(val) {
+    if (!this.cords) this.cords = {};
+
+    if(val.y !== null) {
+      this.cords.y = val.y;
+      this.element.css('bottom', this.cords.y);
+    }
+    if(val.x !== null) {
+      this.cords.x = val.x;
+      this.element.css('left', this.cords.x);
+    }
+  }
+
+  get x() {
+    return this.element.offset().left + this.radius;
+  }
+
+  get y() {
+    return this.holderHeight - this.radius - this.element.offset().top;
+  }
+}
+
+
 /**
 * ============================================
 * ============================================
@@ -9,63 +59,54 @@
 * ============================================
 * ============================================
 */
-class Ball {
-  constructor(holder) {
-    this.holder = holder;
+class Player extends Controlled {
 
-    this.element = $('<div/>', {
-        class: 'ball',
-        id: 'ball'
-      });
+  constructor(holder) {
+    super(...arguments);
+    this.class = 'player';
+    this.initalX = this.holder.width() / 2;
+
+    this.createElement();
 
     this.actions = {
-      37: this.moveLeft,
+      37: this.moveLeft.bind(this),
       38: this.jump.bind(this),
-      39: this.moveRight
+      39: this.moveRight.bind(this)
     };
 
-    this.radius = 10;
-    $(holder).append(this.element);
-
-    $(window).bind('keydown', e => {
-      const action = this.actions[e.keyCode];
+    $(window).on('keydown', e => {
+      let action = this.actions[e.keyCode];
       if (action) action();
     });
   }
 
-  get x() {
-    return this.element.offset().left;
-  }
-
-  get y() {
-    return this.holder.height() - $('#ball').height() - this.element.offset().top;
-  }
-
   moveLeft() {
-    $('.ball').css('left', '30%');
-    window.setTimeout(() => {
-      $('.ball').css('left', '50%');
-    }, 600);
+    if(this.cords.x < (this.radius + 150)) return;
+
+    this.position = {
+      x: this.cords.x - 300
+    }
   }
 
   moveRight() {
-    $('.ball').css('left', '70%');
-    window.setTimeout(() => {
-      $('.ball').css('left', '50%');
-    }, 600);
+    if(this.cords.x > ($(this.holder).width() - this.radius - 150)) return;
+
+    this.position = {
+      x: this.cords.x + 300
+    }
   }
 
   jump() {
     if (this.isJumping) return;
 
     this.isJumping = true;
-    $('.ball').css('bottom', '50%');
+    $('.player').css('bottom', '70%');
     window.setTimeout(() => {
-      $('.ball').css('bottom', '0');
-    }, 600);
+      $('.player').css('bottom', '0');
+    }, 500);
     window.setTimeout(() => {
       this.isJumping = false;
-    }, 1200);
+    }, 1000);
   }
 }
 
@@ -80,49 +121,34 @@ class Ball {
 * ============================================
 * ============================================
 */
-class Box {
+class Box extends Controlled {
   constructor(holder, num) {
-    this.element = $('<div/>', {
-      class: 'box',
-      id: `box-${num}`
-    });
-
-    $(holder).append(this.element);
-
-    let initalX = $(holder).width() + this.element.width();
-
-    this.cords = {
-      x: initalX,
-      y: 0
-    };
+    super(...arguments);
+    this.class = 'box';
+    this.id = `box-${num}`;
+    this.initalX = this.holder.width() + 200;
+    this.createElement();
   }
 
   move() {
-    this.setOffset(-2, 0);
+    this.position = {
+      x: this.cords.x - 2
+    };
 
-    if ((this.cords.x > 0) && (!fail)) {
-      window.setTimeout(() => this.move(), 10);
+    if ((this.x > -this.radius) && (!game.fail)) {
+      window.setTimeout(() => this.move(), 5);
     } else {
-      this.element.remove();
+      this.die();
+
+      if(!game.fail) {
+        $('#score').text(++game.score);
+      }
     }
-    return this.cords;
-  }
-
-  setOffset(dx, dy) {
-    this.cords.x += dx;
-    this.cords.y += dy;
-
-    this.element.css({
-      left: this.cords.x,
-      bottom: this.cords.y
-    });
 
     check(this);
   }
 
 }
-
-
 
 
 /**
@@ -141,29 +167,49 @@ function boxFactory(holder) {
   let iterator = () => {
     let box = new Box(holder, boxCount++);
     box.move();
-    if (!fail)
-      window.setTimeout(iterator, Math.random() * 5000 + boxInterval);
+    if (!game.fail)
+      window.setTimeout(iterator, Math.random() * 5000 + game.boxInterval);
   }
   iterator();
 }
 
 function check(el) {
   if (!el.cords) return;
+  const dx = Math.abs(el.x - player.x);
+  const dy = Math.abs(el.y - player.y);
 
-  const dx = Math.abs(el.cords.x - ball.x);
-  const dy = Math.abs(el.cords.y - ball.y);
-  if (dx < ball.radius && dy < ball.radius) stop();
+  if (dx < player.radius && dy < player.radius) stop();
 }
 
 function stop() {
-  alert('shit');
-  fail = true;
+  $('.game-over').removeClass('hidden');
+  $('.holder').addClass('hidden');
+  $('.game-over').on('click', () => { window.location.reload() });
+  $(window).on('keydown', () => { window.location.reload() });
+  $('#total-score').text(game.score);
+  player.die();
+  game.fail = true;
 }
 
-var rootElement = $('#app');
+const game = {
+  rootElement: $('#holder'),
+  boxInterval: 1000,
+  fail: false,
+  _score: 0
+}
 
-let boxInterval = 1000;
-const ball = new Ball(rootElement);
-let fail = false;
-boxFactory(rootElement);
+Object.defineProperty(game, 'score', {
+  get: function() {
+    return this._score;
+  },
+
+  set: function(value) {
+    this._score = value;
+    this.boxInterval /= value;
+    }
+});
+
+const player = new Player(game.rootElement);
+boxFactory(game.rootElement);
+
 })();
