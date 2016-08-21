@@ -1,95 +1,169 @@
-// var moveLeft = function() {
-//   $('.ball').css('left', '45%');
-//   window.setTimeout(function () {
-//     $('.ball').css('left', '50%');
-//   }, 600);
-// };
-//
-// var moveRight = function() {
-//   $('.ball').css('left', '55%');
-//   window.setTimeout(function () {
-//     $('.ball').css('left', '50%');
-//   }, 600);
-// };
-//
-// // moveRight();
-//
-// var jump = function() {
-//   $('.ball').css('bottom', '50%');
-//   window.setTimeout(function () {
-//     $('.ball').css('bottom', '0');
-//   }, 600);
-// };
-//
-//
-// $(window).bind('keydown', function(e) {
-//   switch(e.keyCode) {
-//     case 37: { //left arrow
-//       moveLeft();
-//       break;
-//     }
-//     case 39: { //right arrow
-//       moveRight();
-//       break;
-//     }
-//     case 38: {
-//       jump();
-//       break;
-//     }
-//     default: {
-//       console.log(e.keyCode);
-//     }
-//
-//   }
-// });
-//
-// var boxFactory = function() {
-//   var element = $('<div/>', {
-//     class: 'box'
-//   });
-//
-//   $('#app').append(element);
-//   element.css('left', $(window).width() + element.width());
-//
-//   return element;
-// };
-//
-//
-//
-// var move = function() {
-//   var element = boxFactory();
-//
-//   var boxMove = function($el) {
-//     $el.css('left', $el.offset().left - 2);
-//     if($el.offset().left < -$el.width()) {
-//       window.clearInterval(interval)
-//     }
-//   };
-//
-//   var interval = window.setInterval(function() {
-//     boxMove(element);
-//   }, 30);
-// }
-//
-// move();
-/*
-var a = 5;
-var b = 10;
-if(a > b) {
- ...
-} else {
- ...
+(() => {
+
+/**
+* ============================================
+* ============================================
+* ============================================
+* Ball - main object
+* ============================================
+* ============================================
+* ============================================
+*/
+class Ball {
+  constructor(holder) {
+    this.holder = holder;
+
+    this.element = $('<div/>', {
+        class: 'ball',
+        id: 'ball'
+      });
+
+    this.actions = {
+      37: this.moveLeft,
+      38: this.jump.bind(this),
+      39: this.moveRight
+    };
+
+    this.radius = 10;
+    $(holder).append(this.element);
+
+    $(window).bind('keydown', e => {
+      const action = this.actions[e.keyCode];
+      if (action) action();
+    });
+  }
+
+  get x() {
+    return this.element.offset().left;
+  }
+
+  get y() {
+    return this.holder.height() - $('#ball').height() - this.element.offset().top;
+  }
+
+  moveLeft() {
+    $('.ball').css('left', '30%');
+    window.setTimeout(() => {
+      $('.ball').css('left', '50%');
+    }, 600);
+  }
+
+  moveRight() {
+    $('.ball').css('left', '70%');
+    window.setTimeout(() => {
+      $('.ball').css('left', '50%');
+    }, 600);
+  }
+
+  jump() {
+    if (this.isJumping) return;
+
+    this.isJumping = true;
+    $('.ball').css('bottom', '50%');
+    window.setTimeout(() => {
+      $('.ball').css('bottom', '0');
+    }, 600);
+    window.setTimeout(() => {
+      this.isJumping = false;
+    }, 1200);
+  }
 }
+
+
+
+/**
+* ============================================
+* ============================================
+* ============================================
+* Box
+* ============================================
+* ============================================
+* ============================================
+*/
+class Box {
+  constructor(holder, num) {
+    this.element = $('<div/>', {
+      class: 'box',
+      id: `box-${num}`
+    });
+
+    $(holder).append(this.element);
+
+    let initalX = $(holder).width() + this.element.width();
+
+    this.cords = {
+      x: initalX,
+      y: 0
+    };
+  }
+
+  move() {
+    this.setOffset(-2, 0);
+
+    if ((this.cords.x > 0) && (!fail)) {
+      window.setTimeout(() => this.move(), 10);
+    } else {
+      this.element.remove();
+    }
+    return this.cords;
+  }
+
+  setOffset(dx, dy) {
+    this.cords.x += dx;
+    this.cords.y += dy;
+
+    this.element.css({
+      left: this.cords.x,
+      bottom: this.cords.y
+    });
+
+    check(this);
+  }
+
+}
+
+
+
+
+/**
+* ============================================
+* ============================================
+* ============================================
+* Game
+* ============================================
+* ============================================
+* ============================================
 */
 
-/*
-i++ == i = i + 1
-for(var i = 0; i < 10; i++) {
-  ...
-}
-*/
+function boxFactory(holder) {
+  var boxCount = 0;
 
-for(var i = 0; i<=10; i++){
-  console.log (i);
+  let iterator = () => {
+    let box = new Box(holder, boxCount++);
+    box.move();
+    if (!fail)
+      window.setTimeout(iterator, Math.random() * 5000 + boxInterval);
+  }
+  iterator();
 }
-// pow(2, 3) => 8
+
+function check(el) {
+  if (!el.cords) return;
+
+  const dx = Math.abs(el.cords.x - ball.x);
+  const dy = Math.abs(el.cords.y - ball.y);
+  if (dx < ball.radius && dy < ball.radius) stop();
+}
+
+function stop() {
+  alert('shit');
+  fail = true;
+}
+
+var rootElement = $('#app');
+
+let boxInterval = 1000;
+const ball = new Ball(rootElement);
+let fail = false;
+boxFactory(rootElement);
+})();
