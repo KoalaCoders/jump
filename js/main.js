@@ -85,7 +85,7 @@ class Player extends Controlled {
     if(this.cords.x < (this.radius + 150)) return;
 
     this.position = {
-      x: this.cords.x - 300
+      x: this.cords.x - 250
     }
   }
 
@@ -93,7 +93,7 @@ class Player extends Controlled {
     if(this.cords.x > ($(this.holder).width() - this.radius - 150)) return;
 
     this.position = {
-      x: this.cords.x + 300
+      x: this.cords.x + 250
     }
   }
 
@@ -132,10 +132,10 @@ class Box extends Controlled {
   }
 
   move() {
-    if(!game.pause) this.position = { x: this.cords.x - 2 };
+    if(!game.pause) this.position = { x: this.cords.x - 2 - game.boxInterval };
 
     if ((this.x > -this.radius) && (!game.fail))
-      window.setTimeout(() => this.move(), 5000 / game.boxInterval);
+      window.setTimeout(() => this.move(), 5);
     else {
       this.die();
       if(!game.fail) $('#score').text(++game.score);
@@ -167,7 +167,7 @@ function boxFactory(holder) {
     }
 
     if (!game.fail)
-      window.setTimeout(iterator, Math.random() * 5000);
+      setTimeout(iterator, Math.random() * 5000);
   }
   iterator();
 }
@@ -184,7 +184,9 @@ function stop() {
   $('.game-over').removeClass('hidden');
   $('.holder').addClass('hidden');
   $('.game-over').on('click', () => { window.location.reload() });
-  $(window).on('keydown', () => { window.location.reload() });
+  setTimeout(() => {
+    $(window).on('keydown', () => { window.location.reload() });
+  }, 1000);
   $('#total-score').text(game.score);
   player.die();
   game.fail = true;
@@ -192,7 +194,7 @@ function stop() {
 
 const game = {
   rootElement: $('#holder'),
-  boxInterval: 1000,
+  boxInterval: 0,
   fail: false,
   pause: false,
   _score: 0
@@ -205,7 +207,8 @@ Object.defineProperty(game, 'score', {
 
   set: function(value) {
     this._score = value;
-    this.boxInterval += value * 10;
+    if(value % 10 == 0)
+    this.boxInterval += 1;
     }
 });
 
