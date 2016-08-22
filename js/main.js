@@ -71,12 +71,13 @@ class Player extends Controlled {
     this.actions = {
       37: this.moveLeft.bind(this),
       38: this.jump.bind(this),
+      32: this.jump.bind(this),
       39: this.moveRight.bind(this)
     };
 
     $(window).on('keydown', e => {
       let action = this.actions[e.keyCode];
-      if (action) action();
+      if (action && !game.pause) action();
     });
   }
 
@@ -131,18 +132,13 @@ class Box extends Controlled {
   }
 
   move() {
-    this.position = {
-      x: this.cords.x - 2
-    };
+    if(!game.pause) this.position = { x: this.cords.x - 2 };
 
-    if ((this.x > -this.radius) && (!game.fail)) {
-      window.setTimeout(() => this.move(), 5);
-    } else {
+    if ((this.x > -this.radius) && (!game.fail))
+      window.setTimeout(() => this.move(), 5000 / game.boxInterval);
+    else {
       this.die();
-
-      if(!game.fail) {
-        $('#score').text(++game.score);
-      }
+      if(!game.fail) $('#score').text(++game.score);
     }
 
     check(this);
@@ -165,10 +161,13 @@ function boxFactory(holder) {
   var boxCount = 0;
 
   let iterator = () => {
-    let box = new Box(holder, boxCount++);
-    box.move();
+    if(!game.pause) {
+      let box = new Box(holder, boxCount++);
+      box.move();
+    }
+
     if (!game.fail)
-      window.setTimeout(iterator, Math.random() * 5000 + game.boxInterval);
+      window.setTimeout(iterator, Math.random() * 5000);
   }
   iterator();
 }
@@ -195,6 +194,7 @@ const game = {
   rootElement: $('#holder'),
   boxInterval: 1000,
   fail: false,
+  pause: false,
   _score: 0
 }
 
@@ -205,9 +205,12 @@ Object.defineProperty(game, 'score', {
 
   set: function(value) {
     this._score = value;
-    this.boxInterval /= value;
+    this.boxInterval += value * 10;
     }
 });
+
+$(window).on('blur', () => { game.pause = true; })
+  .on('focus', () => { game.pause = false; });
 
 const player = new Player(game.rootElement);
 boxFactory(game.rootElement);
