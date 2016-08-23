@@ -1,3 +1,5 @@
+@import 'https://fonts.googleapis.com/css?family=Roboto';
+
 * {
   box-sizing: border-box;
 }
@@ -5,6 +7,7 @@
 html, body {
   margin: 0;
   padding: 0;
+
 }
 
 .app {
@@ -12,26 +15,81 @@ html, body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: rgba(0, 0, 255, .1);
+  font-family: 'Roboto', sans-serif;
+  font-weight: 100;
+  color: #666;
 }
 
-.ball {
-  height: 50px;
-  width: 50px;
-  border-radius: 50%;
-  background-color: #f00;
+.holder {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.holder:before {
+  content: "";
+  display: block;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, .6);
+  z-index: inherit;
+  z-index: 100;
+}
+
+.score {
+  text-transform: uppercase;
+  font-size: 20px;
+}
+
+.player {
+  height: 200px;
+  width: 200px;
   position: absolute;
   left: 50%;
   bottom: 0;
   transform: translateX(-50%);
-  transition: .6s;
+  transition: left linear .4s, bottom ease-out .5s;
+  background-image: url('../images/man.gif');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .box {
-  height: 30px;
-  width: 30px;
-  background-color: #000;
+  height: 100px;
+  width: 100px;
   position: absolute;
   transform: translateX(-50%);
   bottom: 0;
+  background-image: url('../images/shit.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.game-over {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, .9);
+  z-index: 100;
+}
+
+.total-score {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, .8);
+  font-size: 30px;
+}
+
+.hidden {
+  display: none;
 }
