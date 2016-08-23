@@ -10,6 +10,7 @@ export default class Player extends Controlled {
 
     this.createElement();
 
+    this.radius = this.element.offsetWidth / 2;
     this.actions = {
       37: this.moveLeft.bind(this),
       38: this.jump.bind(this),
@@ -24,25 +25,23 @@ export default class Player extends Controlled {
   }
 
   moveLeft() {
-    if(this.cords.x < (this.radius + 150)) return;
-
+    if(this.x < (this.radius + 150)) return;
+    debugger
     this.position = {
-      x: this.cords.x - 250
+      x: this.x - 250
     }
   }
 
   moveRight() {
-    if(this.cords.x > (this.holder.offsetWidth - this.radius - 150)) return;
+    if(this.x > (this.holder.offsetWidth - this.radius - 150)) return;
 
     this.position = {
-      x: this.cords.x + 250
+      x: this.x + 250
     }
   }
 
-  jump() {
+  jump() {this
     if (this.isJumping) return;
-
-
 
     this.isJumping = true;
     this.element.style.bottom = '70%';

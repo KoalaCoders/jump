@@ -243,7 +243,7 @@
 	  }, {
 	    key: 'y',
 	    get: function get() {
-	      return this.holderHeight - this.radius - this.element.offset().top;
+	      return this.holder.offsetHeight - this.radius - this.element.offset().top;
 	    }
 	  }]);
 

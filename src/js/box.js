@@ -8,6 +8,7 @@ export default class Box extends Controlled {
     this.id = `box-${num}`;
     this.initalX = this.holder.offsetWidth + 200;
     this.createElement();
+    this.radius = this.element.offsetWidth / 2;
   }
 
   move() {

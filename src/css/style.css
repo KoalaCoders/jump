@@ -46,6 +46,7 @@ html, body {
 }
 
 .player {
+  display: inline-block;
   height: 200px;
   width: 200px;
   position: absolute;
@@ -60,6 +61,7 @@ html, body {
 }
 
 .box {
+  display: inline-block;
   height: 100px;
   width: 100px;
   position: absolute;

@@ -19,7 +19,7 @@ export default {
       }
 
       if (!game.fail)
-        setTimeout(iterator, Math.random() * 5000);
+        setTimeout(iterator, Math.random() * 5000 + 1000);
     }
 
     iterator();
@@ -40,8 +40,9 @@ export default {
 
     gameOver.classList.add('hidden');
     holder.classList.add('hidden');
-    gameOver.onclick = () => { window.location.reload() };
+
     setTimeout(() => {
+      gameOver.onclick = () => { window.location.reload() };
       window.onkeydown = () => { window.location.reload() };
     }, 1000);
 
@@ -56,7 +57,6 @@ export default {
 
   set score(value) {
     this._score = value;
-    if(value % 10 == 0)
-    this.boxInterval += 1;
+    if(value % 10 == 0) this.boxInterval += 1;
   }
 }
