@@ -2,10 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Document</title>
+  <title>Jump - KoalaCoders</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>Hello World</h1>
-  <sript src="bundle.js"></sript>
+  <div id="app" class="app">
+
+    <div class="game-over hidden">
+      <div class="total-score">
+        Total score:
+        <span id="total-score"></span>
+      </div>
+    </div>
+
+    <div class="holder" id="holder">
+      <div class="score">
+        Score: <span id="score">0</span>
+      </div>
+    </div>
+
+  </div>
+  <script async src="main.js"></script>
 </body>
 </html>
