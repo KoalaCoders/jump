@@ -54,7 +54,7 @@ class Controlled {
 * ============================================
 * ============================================
 * ============================================
-* Ball - main object
+* Player - main object
 * ============================================
 * ============================================
 * ============================================
@@ -167,15 +167,15 @@ function boxFactory(holder) {
     }
 
     if (!game.fail)
-      setTimeout(iterator, Math.random() * 5000);
+      setTimeout(iterator, Math.random() * 5000 + 1000);
   }
   iterator();
 }
 
 function check(el) {
   if (!el.cords) return;
-  const dx = Math.abs(el.x - player.x);
-  const dy = Math.abs(el.y - player.y);
+  const dx = Math.abs(el.x - player.x) + 20;
+  const dy = Math.abs(el.y - player.y) + 20;
 
   if (dx < player.radius && dy < player.radius) stop();
 }
